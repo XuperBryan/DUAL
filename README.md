@@ -12,4 +12,4 @@ Player 2 controls:
 - B: shoot straight
 - N: pivot + shoot right
 
-Game ends when P1 or P2's life bar runs out, and is signalled by a fully yellow square
+Game ends when P1 or P2's life bar runs out, signalled by a fully yellow square

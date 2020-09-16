@@ -1,10 +1,7 @@
-
 /**
- * Write a description of class DUAL here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Bryan Xu, Brian Wu 
  */
+
 import java.util.Scanner;
 import javax.swing.*;
 import java.awt.*;
@@ -20,9 +17,6 @@ public class DUAL extends JComponent
     public int frameWidth;
     public int playerSize = 100;
 
-    //public int p1cleanness = 1000000;
-    //public int p2cleanness = 1000000;
-
     public static ArrayList<KeyEvent> keys = new ArrayList<KeyEvent>();
     public DUAL(int frameWidth, int frameHeight)
     {
@@ -30,10 +24,7 @@ public class DUAL extends JComponent
         this.frameHeight = frameHeight;
         p1 = new Block(frameWidth,frameHeight,playerSize,playerSize,1);
         p2 = new Block(frameWidth,frameHeight,playerSize,playerSize,2);
-        //p1.isABot = true;  
-        /**
-         * ^^^^ change this for ai ^^^^
-         */
+
     }
 
     public void shootBullets(){
@@ -54,14 +45,13 @@ public class DUAL extends JComponent
         g2.fill(p2.body);
 
         g2.setColor(new Color(66, 134, 244));
-        g2.fill(p1.peeCapacity);
-        //g2.setColor(new Color(212,108,231));
-        g2.fill(p2.peeCapacity);
+        g2.fill(p1.block);
+        g2.fill(p2.block);
 
         g2.setColor(Color.red);
-        g2.fill(p1.peeCleanness);
+        g2.fill(p1.currentAmmo);
         g2.setColor(Color.red);
-        g2.fill(p2.peeCleanness);
+        g2.fill(p2.currentAmmo);
 
         shootBullets();
         Rectangle r3 = p1.body.intersection(p2.body);
@@ -94,11 +84,10 @@ public class DUAL extends JComponent
             transform.rotate(Math.toRadians(bul.angle+90), bul.body.getX() + bul.body.width/2, bul.body.getY() + bul.body.height/2);
             Shape transformed = transform.createTransformedShape(bul.body);
             g2.fill(transformed);
-            //g2.fill(bul.body);
             if(bul.body.intersects(p2.body)){
-                Rectangle peeTouched = bul.body.intersection(p2.body); 
-                int peeDirtiness = (int)(peeTouched.getWidth()*peeTouched.getHeight());
-                p2.cleanness -= peeDirtiness;
+                Rectangle bulletTouched = bul.body.intersection(p2.body); 
+                int bulletCollide = (int)(bulletTouched.getWidth()*bulletTouched.getHeight());
+                p2.cleanness -= bulletCollide;
                 g2.draw(p2.body);
                 f2++;
             }
@@ -110,9 +99,9 @@ public class DUAL extends JComponent
             Shape transformed = transform.createTransformedShape(bul.body);
             g2.fill(transformed);
             if(bul.body.intersects(p1.body)){
-                Rectangle peeTouched = bul.body.intersection(p1.body); 
-                int peeDirtiness = (int)(peeTouched.getWidth()*peeTouched.getHeight());
-                p1.cleanness -= peeDirtiness;
+                Rectangle bulletTouched = bul.body.intersection(p1.body); 
+                int bulletCollide = (int)(bulletTouched.getWidth()*bulletTouched.getHeight());
+                p1.cleanness -= bulletCollide;
                 g2.draw(p1.body);
 
                 f1++;
@@ -122,18 +111,17 @@ public class DUAL extends JComponent
         g2.fill(flash1);
         g2.setColor(new Color(239, 226, 40, f2*4));
         g2.fill(flash2);
-        //int index = 0;
-        if(getPeeLife()==3){
+        if(getCurrentLife()==3){
             g2.setColor(Color.YELLOW);
             g2.fill(p2.body);
             g2.setColor(Color.YELLOW);
             g2.fill(p1.body);
         }
-        if(getPeeLife()==2){
+        if(getCurrentLife()==2){
             g2.setColor(Color.YELLOW);
             g2.fill(p2.body);
         }
-        if(getPeeLife()==1){
+        if(getCurrentLife()==1){
             g2.setColor(Color.YELLOW);
             g2.fill(p1.body);
         }
@@ -141,16 +129,13 @@ public class DUAL extends JComponent
         g2.setRenderingHint(
             RenderingHints.KEY_TEXT_ANTIALIASING,
             RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        //
-        //very necessary addition
+
         if(p1.body.intersects(p2.body)){
             g.setFont(new Font("Open Sans", Font.PLAIN, 200));
             g2.setColor(Color.RED);
-            //g2.drawString("KABOOM",400,500);
         }else{
             g.setFont(new Font("Open Sans", Font.PLAIN, 200));
             g2.setColor(Color.black);
-            //g2.drawString("I'M A GENIUS",400,500);
         }
     }
 
@@ -161,7 +146,6 @@ public class DUAL extends JComponent
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        //frame.getContentPane().setBackground(Color.black);
         frame.setVisible(true);
         int frameWidth = frame.getWidth();
         int frameHeight = frame.getHeight();
@@ -192,8 +176,8 @@ public class DUAL extends JComponent
         class TimerListener implements ActionListener
         {
             public void actionPerformed(ActionEvent e){
-                boolean p1peed = false;
-                boolean p2peed = false;
+                boolean p1fired = false;
+                boolean p2fired = false;
                 for(KeyEvent ee : keys){
                     if(ee.getKeyCode() == KeyEvent.VK_W){
                         game.p1.moveUp();
@@ -227,38 +211,36 @@ public class DUAL extends JComponent
                         game.p2.moveRight();
                         game.repaint();
                     }
-                    if(ee.getKeyCode() == 99){
-                        p2peed = true;
+                    if(ee.getKeyCode() == KeyEvent.VK_3 || ee.getKeyCode() == 99){                        
+                        p2fired = true;
                         game.p2.changeAngleBy(2);
                         game.p2.shoot();
                         game.repaint();
                     }
-                    if(ee.getKeyCode() == 98){
-                        p2peed = true;
-                        //game.p2.changeAngleBy(-1);
+                    if(ee.getKeyCode() == KeyEvent.VK_2 || ee.getKeyCode() == 98){                
+                        p2fired = true;
                         game.p2.shoot();
                         game.repaint();
                     }
-                    if(ee.getKeyCode() == 97){
-                        p2peed = true;
+                    if(ee.getKeyCode() == KeyEvent.VK_1 || ee.getKeyCode() == 97){            
+                        p2fired = true;
                         game.p2.changeAngleBy(-2);
                         game.p2.shoot();
                         game.repaint();
                     }
                     if(ee.getKeyCode() == KeyEvent.VK_V){
-                        p1peed = true;
+                        p1fired = true;
                         game.p1.changeAngleBy(2);
                         game.p1.shoot();
                         game.repaint();
                     }
                     if(ee.getKeyCode() == KeyEvent.VK_B){
-                        p1peed = true;
-                        //game.p1.changeAngleBy(1);
+                        p1fired = true;
                         game.p1.shoot();
                         game.repaint();
                     }
                     if(ee.getKeyCode() == KeyEvent.VK_N){
-                        p1peed = true;
+                        p1fired = true;
                         game.p1.changeAngleBy(-2);
                         game.p1.shoot();
                         game.repaint();
@@ -270,19 +252,17 @@ public class DUAL extends JComponent
 
                 if(game.p1.isABot){
                     game.botMove(1);
-                    //game.botSuperMove(1);
-                    if(game.p1.bladder==300){
+                    if(game.p1.currentCapacity==300){
                         game.p1.botCanShoot = true;
                     }
                     if(game.p1.botCanShoot){
-                        if(game.p1.bladder>0){
+                        if(game.p1.currentCapacity>0){
                             game.botShoot(1);
-                            p1peed = true;
+                            p1fired = true;
                         }else{
                             game.p1.botCanShoot = false;
-                            p1peed = false;
+                            p1fired = false;
                         }
-                        //System.out.println("as: "+game.p1.bladder);
                     }
                     if(!game.p1.shot&&game.p1.cleanness<50000){
                         game.botSuperMove(1);
@@ -298,17 +278,15 @@ public class DUAL extends JComponent
                     game.botShoot(2);
                 }
 
-                if(!p1peed&&game.p1.bladder<300){
-                    game.p1.replenishBladder(1);
-                    //System.out.println("fsda");
+                if(!p1fired&&game.p1.currentCapacity<300){
+                    game.p1.replenish(1);
                 }
-                if(!p2peed&&game.p2.bladder<300){
-                    game.p2.replenishBladder(5);
-                    //System.out.println("fsda2");
+                if(!p2fired&&game.p2.currentCapacity<300){
+                    game.p2.replenish(5);
                 } 
 
-                game.p1.updatePee();
-                game.p2.updatePee();
+                game.p1.update();
+                game.p2.update();
             }
         }
         ActionListener listener = new TimerListener();
@@ -338,7 +316,7 @@ public class DUAL extends JComponent
         }
     }
 
-    private int getPeeLife(){
+    private int getCurrentLife(){
         if(p1.cleanness<=0&&p2.cleanness<=0){
             return 3;
         }
@@ -412,10 +390,7 @@ public class DUAL extends JComponent
                     break;
                 }
                 int dmg0 = getDmg(player,temp, 0);
-                //int dmg1 = getDmg(player,temp, 1);
                 moveScores[i]-=dmg0;
-                //moveScores[i]-=dmg1;
-                //System.out.println(i+" th index: "+ moveScores[i]);
             }
             int maxValue = moveScores[0];
             for(int i = 0; i<moveScores.length; i++){
@@ -442,7 +417,6 @@ public class DUAL extends JComponent
 
             int maxIndex = maxIndexes.get(ranNum);
 
-            //System.out.println("max: "+ maxIndex);
             switch(maxIndex){
                 case 0: 
                 p1.moveRight();
@@ -483,9 +457,9 @@ public class DUAL extends JComponent
                 case 0: 
                 for(Bullet bul : p2.bullets){
                     if(bul.body.intersects(temp)){
-                        Rectangle peeTouched = bul.body.intersection(temp); 
-                        int peeDirtiness = (int)(peeTouched.getWidth()*peeTouched.getHeight());
-                        dmg += peeDirtiness;
+                        Rectangle bulletTouched = bul.body.intersection(temp); 
+                        int bulletCollide = (int)(bulletTouched.getWidth()*bulletTouched.getHeight());
+                        dmg += bulletCollide;
                     }
                 }
                 break;
@@ -493,9 +467,9 @@ public class DUAL extends JComponent
                 for(Bullet bul : p2.bullets){
                     Rectangle bulInInt = new Rectangle(bul.getX()+bul.xVelocity.get(0), bul.getY()+bul.yVelocity.get(0), (int)bul.body.getWidth(), (int)bul.body.getHeight());
                     if(bulInInt.intersects(temp)){
-                        Rectangle peeTouched = bulInInt.intersection(temp); 
-                        int peeDirtiness = (int)(peeTouched.getWidth()*peeTouched.getHeight());
-                        dmg += peeDirtiness;
+                        Rectangle bulletTouched = bulInInt.intersection(temp); 
+                        int bulletCollide = (int)(bulletTouched.getWidth()*bulletTouched.getHeight());
+                        dmg += bulletCollide;
                     }
                 }
                 break;
@@ -520,13 +494,9 @@ public class DUAL extends JComponent
     public void botSuperMove(int player){
         if(player ==1){
             for(int ang = 0; ang<360; ang+=5){
-                //theta = Math.toDegrees(theta)+270;
                 p1.angle = ang;
                 p1.shoot();
-                //System.out.println(ang);
             }
-            //repaint();
         }
     }
 }
-

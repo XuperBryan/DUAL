@@ -1,10 +1,7 @@
-
 /**
- * Write a description of class Bullet here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Bryan Xu, Brian Wu 
  */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -62,15 +59,11 @@ public class Bullet extends JComponent
     public void move(){
         int ranIndex = (int)(Math.random()*xVelocity.size());
         if(xVelocity.size()>0){
-            //System.out.println("size is no 0");
             int xMove = xVelocity.get(ranIndex);
             xVelocity.remove(ranIndex);
             int yMove = yVelocity.get(ranIndex);
             yVelocity.remove(ranIndex);
             body.translate(xMove, yMove);
-            //System.out.println(body.getX()+" "+body.getY());
         }
     }
 }
-
-

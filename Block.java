@@ -1,9 +1,5 @@
-
 /**
- * Write a description of class Block here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Bryan Xu, Brian Wu
  */
 import javax.swing.*;
 import java.awt.*;
@@ -16,25 +12,24 @@ public class Block extends JComponent
     public int bodyHeight;
     public int frameWidth;
     public int frameHeight;
-    public int player;//player1 is top, player2 is bottom, 
+
+    //player1 is top, player2 is bottom
+    public int player; 
     public int speed = 7;
-    //public int boundary;
-    //public int lives = 10;
     
     public int angle;
     public int bulletSpeed = 6;
     public ArrayList<Bullet> bullets;
-    //public ArrayList<Integer> rotations;
     
     
     
-    public int MAX_BLADDER = 300;
-    public double bladder = MAX_BLADDER;
-    public Rectangle peeCapacity ;
+    public int MAX_CAPACITY = 300;
+    public double currentCapacity = MAX_CAPACITY;
+    public Rectangle block ;
     
-    public int MAX_CLEANNESS = 100000;
-    public int cleanness = MAX_CLEANNESS;
-    public Rectangle peeCleanness ;
+    public int MAX_AMMO = 100000;
+    public int cleanness = MAX_AMMO;
+    public Rectangle currentAmmo;
     
     public boolean isABot;
     public boolean botCanShoot;
@@ -47,23 +42,21 @@ public class Block extends JComponent
         this.bodyHeight = bodyHeight;
         this.player = player;
         bullets = new ArrayList<Bullet>();
-        //rotations = new ArrayList<Integer>();
         int space = frameHeight/4;
         if(player==1){
             space = -space;
         }
         
         body = new Rectangle(frameWidth/2,frameHeight/2+space,bodyWidth,bodyHeight);
-        peeCapacity = new Rectangle((int)body.getX(),(int)(body.getY()+bodyHeight-(bladder*bodyHeight/MAX_BLADDER)),(int)bodyWidth,(int)(bladder*bodyHeight/MAX_BLADDER));
+        block = new Rectangle((int)body.getX(),(int)(body.getY()+bodyHeight-(currentCapacity*bodyHeight/MAX_CAPACITY)),(int)bodyWidth,(int)(currentCapacity*bodyHeight/MAX_CAPACITY));
         
         
         if(player==1){
-            peeCleanness = new Rectangle(0,0,(int)(cleanness*frameWidth/MAX_CLEANNESS),50);
+            currentAmmo = new Rectangle(0,0,(int)(cleanness*frameWidth/MAX_AMMO),50);
             angle = 90;
-            //cleanness = 550000;
         }
         if(player==2){
-            peeCleanness = new Rectangle(0,frameHeight-50,(int)(cleanness*frameWidth/MAX_CLEANNESS),50);
+            currentAmmo = new Rectangle(0,frameHeight-50,(int)(cleanness*frameWidth/MAX_AMMO),50);
             angle = 270;
         }
         
@@ -115,31 +108,24 @@ public class Block extends JComponent
 
     public void shoot(){
         int bulletSize = 4;
-        if(bladder>0){
-            //Rectangle rect = new Rectangle(body.x+bodyWidth/2,body.y+bodyHeight/2,bulletSize,3*bulletSize); 
+        if(currentCapacity>0){
             Bullet bul = new Bullet(body.x+bodyWidth/2,body.y+bodyHeight/2,bulletSize,3*bulletSize, angle, bulletSpeed);
             bullets.add(bul);
             bul.start();
-            //rotations.add(angle);
-            bladder -= 1;
-            //peeCapacity = new Rectangle((int)body.getX(),(int)body.getY(),(int)bodyWidth,(int)(bladder*bodyHeight/100));
+            currentCapacity -= 1;
         }
     }
 
-    public void replenishBladder(double num){ 
-        bladder += num;
+    public void replenish(double num){ 
+        currentCapacity += num;
     }
 
-    public void shootBullets(){
-        //bulletSpeed = 4;
-        //angle = 30;
-        
+    public void shootBullets(){    
         for(int i = 0; i<bullets.size(); i++){
             if(player==1){
                 bullets.get(i).move();
             }else{
                 bullets.get(i).move();
-                //rects.get(i).translate((int)(bulletSpeed*Math.sin(Math.toRadians(rotations.get(i)))),(int)(bulletSpeed*Math.cos(Math.toRadians(rotations.get(i)))));
             }
         }
         repaint();
@@ -160,24 +146,17 @@ public class Block extends JComponent
         
     }
 
-    public void updatePee(){
-        peeCapacity = new Rectangle((int)body.getX(),(int)(body.getY()+bodyHeight-(bladder*bodyHeight/MAX_BLADDER*9/10)),(int)bodyWidth,(int)(bladder*bodyHeight/MAX_BLADDER*9/10));
+    public void update(){
+        block = new Rectangle((int)body.getX(),(int)(body.getY()+bodyHeight-(currentCapacity*bodyHeight/MAX_CAPACITY*9/10)),(int)bodyWidth,(int)(currentCapacity*bodyHeight/MAX_CAPACITY*9/10));
         if(player==1){
-            peeCleanness = new Rectangle(0,0,(int)(cleanness*frameWidth/MAX_CLEANNESS),50);
+            currentAmmo = new Rectangle(0,0,(int)(cleanness*frameWidth/MAX_AMMO),50);
         }
         if(player==2){
-            peeCleanness = new Rectangle(0,frameHeight-60,(int)(cleanness*frameWidth/MAX_CLEANNESS),50);
+            currentAmmo = new Rectangle(0,frameHeight-60,(int)(cleanness*frameWidth/MAX_AMMO),50);
         }
     }
     
     public void changeAngleBy(int ang){
         angle += ang;
-        //System.out.println(angle);
     }
 }
-
-
-
-
-
-
